@@ -1,0 +1,21 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<link rel="stylesheet" href="{% static 'fuel/css/bootstrap.min.css' %}">
+<script src="{% static 'fuel/js/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'fuel/js/bootstrap.bundle.min.js' %}"></script>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+
+<body>
+    <div class="container">
+        <a href="{% url 'list' %}">給油履歴一覧</a>
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+
+</html>

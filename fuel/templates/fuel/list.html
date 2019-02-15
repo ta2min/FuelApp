@@ -1,0 +1,85 @@
+{% extends "fuel/base.html" %}
+
+{% block title %}給油履歴の一覧{% endblock %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">最新ガソリン価格</h4>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card border-primary mb-3" style="width: 250px;">
+                <h3 class="card-header">PLANT3</h3>
+                <div class="card-body">
+                        <p class="card-text" style="font-size: 25px">{{ plant3_data.price }}円/L</p>
+                </div>
+                <div class="card-footer">最終確認日{{ plant3_data.confirmed_date }}</div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card border-warning mb-3" style="width: 250px;">
+                <h3 class="card-header">カナショク</h3>
+                <div class="card-body">
+                        <p class="card-text" style="font-size: 25px">{{ kanasyoku_data.price }}円/L</p>
+                </div>
+                <div class="card-footer">最終確認日{{ kanasyoku_data.confirmed_date }}</div>
+            </div>
+        </div>
+</div>
+<h4 class="mt-4 border-bottom">給油履歴の一覧</h4>
+<a href="{% url 'refueling_add' %}" class="btn btn-primary btn-sm my-3">追加</a>
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">給油日</th>
+            <th scope="col">場所</th>
+            <th scope="col">価格(L/円)</th>
+            <th scope="col">量(L)</th>
+            <th scope="col">合計</th>
+            <th scope="col">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for refueling_log in refueling_logs %}
+        <tr>
+            <th scope="row">{{refueling_log.refueling_date}}</th>
+            <td>{{refueling_log.place}}</td>
+            <td>{{refueling_log.price}}</td>
+            <td>{{refueling_log.amount}}</td>
+            <td>{{refueling_log.total}}</td>
+            <td>
+                <button class="btn btn-outline-danger btn-sm del_confirm" data-toggle="modal" data-target="#deleteModal"
+                    data-pk="{{ refueling_log.id }}" data-url="{% url 'delete' refueling_id=refueling_log.id %}">削除</button>
+                <a href="{% url 'refueling_mod' refueling_id=refueling_log.id %}" class="btn btn-outline-primary btn-sm">修正</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {# 削除を確認するモーダル ダイアログ #}
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">確認</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>ID: <span id="del_pk"></span> を削除しますか？</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="delete/13" class="btn btn-primary" id="del_url">OK</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            $('.del_confirm').on('click', function () {
+                console.log($(this).data("pk"));
+                $("#del_pk").text($(this).data("pk"));
+                $('#del_url').attr('href', $(this).data("url"));
+            });
+        });
+    </script>
+    {% endblock %}
+</table>
