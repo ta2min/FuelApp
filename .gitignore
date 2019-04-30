@@ -17,3 +17,4 @@ tests/.coverage
 build/
 tests/report/
 config/settings/local_secret.py
+.idea

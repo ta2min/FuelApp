@@ -1,17 +1,17 @@
 from datetime import date, timedelta
 import re
-import sqlite3
 import time 
 
 from requests_html import HTMLSession
 from .models import FuelPrice
+
 
 def get_regular_info(url):
     time.sleep(0.5)
     session = HTMLSession()
     r = session.get(url)
 
-    #アクセスに失敗したときの処理
+    # アクセスに失敗したときの処理
     if r.status_code != 200:
         return None
 
@@ -29,6 +29,7 @@ def get_registered_date(days):
     registered_date =  today - timedelta(days=days)
     return registered_date
 
+
 def convert_shop_name(shop_name):
     if 'PLANT' in shop_name:
         shop_name = 'PLANT3 川北店'
@@ -36,11 +37,13 @@ def convert_shop_name(shop_name):
         shop_name = 'カナショク 寺井店'
     return shop_name
 
+
 def scrape_fuel_price(urls):
     data = []
     for url in urls:
         data.append(get_regular_info(url))
     return data
+
 
 def is_insert_data(data):
     shop_name = data['shop_name']
@@ -53,9 +56,11 @@ def is_insert_data(data):
         print(False, latest_data_date, registered_date)
         return False
 
+
 def insert_data(data):
     fuel_price = FuelPrice(place=data['shop_name'], price=data['price'], confirmed_date=data['registered_date'])
     fuel_price.save()
+
 
 if __name__ == '__main__':
     urls = ['https://gogo.gs/shop/1799000108', 'https://gogo.gs/shop/1799000017']

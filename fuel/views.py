@@ -5,14 +5,15 @@ from .models import Refueling, FuelPrice
 from .forms import RefuelingForm
 from .price_scrape import scrape_fuel_price, is_insert_data, insert_data
 
+
 def list(request):
     title = '給油履歴'
 
-    #ガソリン価格の最新情報を取得
+    # ガソリン価格の最新情報を取得
     plant3_data = FuelPrice.objects.filter(place='PLANT3 川北店').latest('acquisition_date')
     kanasyoku_data =  FuelPrice.objects.filter(place='カナショク 寺井店').latest('acquisition_date')
 
-    #給油履歴の取得
+    # 給油履歴の取得
     refueling_logs =  Refueling.objects.order_by('-refueling_date')
 
     return TemplateResponse(request, 'fuel/list.html',
@@ -27,7 +28,7 @@ def detail(request):
 
 
 def refueling_edit(request, refueling_id=None):
-    #GETリクエストのときはrefueling_idがあれば修正、なければ追加の編集画面を返す
+    # GETリクエストのときはrefueling_idがあれば修正、なければ追加の編集画面を返す
     if refueling_id:
         refueling = get_object_or_404(Refueling, pk=refueling_id)
     else:
