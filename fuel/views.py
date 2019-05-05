@@ -55,6 +55,6 @@ def fuel_price(request):
     for shop_data in shops_data:
         if is_insert_data(shop_data):
             insert_data(shop_data)
-        latest_data.append(FuelPrice.objects.filter(place=shop_data['shop_name']).latest('acquisition_date'))
+        latest_data.append(FuelPrice.objects.filter(place=shop_data['店名']).latest('acquisition_date'))
     return render(request, 'fuel/fuel_price.html',
             {'latest_data': latest_data})
