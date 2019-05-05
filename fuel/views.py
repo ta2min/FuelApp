@@ -1,57 +1,51 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template.response import TemplateResponse
-
+from django.views.generic import (
+    CreateView,
+    # DeleteView,
+    ListView,
+    UpdateView,
+    View,
+)
 from .models import Refueling, FuelPrice
 from .forms import RefuelingForm
 from .price_scrape import scrape_fuel_price, is_insert_data, insert_data
 
 
-def list(request):
-    title = '給油履歴'
+class RefuelingList(ListView):
+    model = Refueling
+    context_object_name = 'refueling_logs'
+    paginate_by = 100
+    template_name = 'fuel/fuel_list.html'
 
-    # ガソリン価格の最新情報を取得
-    plant3_data = FuelPrice.objects.filter(place='PLANT3 川北店').latest('acquisition_date')
-    kanasyoku_data =  FuelPrice.objects.filter(place='カナショク 寺井店').latest('acquisition_date')
+    def get_queryset(self):
+        return Refueling.objects.order_by('-refueling_date')
 
-    # 給油履歴の取得
-    refueling_logs =  Refueling.objects.order_by('-refueling_date')
-
-    return TemplateResponse(request, 'fuel/list.html',
-                            {'title': title,
-                             'plant3_data': plant3_data,
-                             'kanasyoku_data': kanasyoku_data,
-                             'refueling_logs': refueling_logs})
-
-
-def detail(request):
-    pass
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['plant3_data'] = FuelPrice.objects.filter(place='PLANT3 川北店').latest('acquisition_date')
+        context['kanasyoku_data'] = FuelPrice.objects.filter(place='カナショク 寺井店').latest('acquisition_date')
+        return context
 
 
-def refueling_edit(request, refueling_id=None):
-    # GETリクエストのときはrefueling_idがあれば修正、なければ追加の編集画面を返す
-    if refueling_id:
-        refueling = get_object_or_404(Refueling, pk=refueling_id)
-    else:
-        refueling = Refueling()
-
-    if request.method == 'POST':
-        form = RefuelingForm(request.POST, instance=refueling)
-        if form.is_valid():
-            refueling = form.save(commit=False)
-            refueling.save()
-            return redirect('list')
-    else:
-        form = RefuelingForm(instance=refueling)
-
-    return TemplateResponse(request, 'fuel/edit.html',
-                            {'form': form,
-                             'refueling_id': refueling_id})
+class RefuelingAdd(CreateView):
+    model = Refueling
+    form_class = RefuelingForm
+    template_name = 'fuel/edit.html'
+    success_url = '/fuel'
 
 
-def delete(request, refueling_id):
-    refueling = get_object_or_404(Refueling, pk=refueling_id)
-    refueling.delete()
-    return redirect('list')
+class RefuelingMod(UpdateView):
+    model = Refueling
+    form_class = RefuelingForm
+    template_name = 'fuel/edit.html'
+    success_url = '/fuel'
+
+
+class RefuelingDelete(View):
+    def get(self, request, **kwargs):
+        refueling = get_object_or_404(Refueling, pk=self.kwargs['pk'])
+        refueling.delete()
+        return redirect('refueling_list')
 
 
 def fuel_price(request):
